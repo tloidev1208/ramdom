@@ -42,6 +42,8 @@ export default function RootLayout({
                 tloidev
               </a>
               . All rights reserved.
+              <br />
+              <span className="text-xs text-gray-400">version: 1.2.0</span>
             </p>
           </footer>
         </div>
