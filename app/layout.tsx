@@ -27,7 +27,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="min-h-screen flex flex-col">
+          <main className="flex-grow">{children}</main>
+
+          <footer className="bg-gray-100 text-gray-600 text-sm text-center py-4 border-t">
+            <p>
+              © {new Date().getFullYear()} Developed by{" "}
+              <a
+                href="https://thanh-loi-dev.netlify.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                tloidev
+              </a>
+              . All rights reserved.
+            </p>
+          </footer>
+        </div>
       </body>
     </html>
   );
