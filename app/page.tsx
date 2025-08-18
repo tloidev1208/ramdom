@@ -8,6 +8,7 @@ export default function App() {
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [team1, setTeam1] = useState<string[]>([]);
   const [team2, setTeam2] = useState<string[]>([]);
+  const [spinTime, setSpinTime] = useState<string>("");
 
   const addName = (): void => {
     if (name.trim() !== "") {
@@ -31,6 +32,7 @@ export default function App() {
     setIsSpinning(true);
     setTeam1([]);
     setTeam2([]);
+    setSpinTime(""); // reset trước khi quay
 
     let counter = 0;
     const interval = setInterval(() => {
@@ -40,6 +42,14 @@ export default function App() {
 
       if (counter > 20) {
         clearInterval(interval);
+
+        // Lưu thời gian quay
+        const now = new Date();
+        const formatted =
+          now.toLocaleDateString("vi-VN") +
+          " " +
+          now.toLocaleTimeString("vi-VN");
+        setSpinTime(formatted);
 
         const shuffled: string[] = shuffleArray(names);
         const t1: string[] = [];
@@ -154,9 +164,16 @@ export default function App() {
           </div>
         )}
 
+        {/* Ngày giờ quay */}
+        {!isSpinning && spinTime && (team1.length > 0 || team2.length > 0) && (
+          <div className="mt-6 text-center text-gray-500 text-sm font-medium">
+            <span>🕒 Quay lúc: {spinTime}</span>
+          </div>
+        )}
+
         {/* Hai team */}
         {!isSpinning && (team1.length > 0 || team2.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 w-full text-gray-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 w-full text-gray-800">
             <div className="bg-blue-50 rounded-xl p-4 shadow max-h-100 overflow-y-auto">
               <h2 className="text-xl font-bold mb-3 text-blue-700 text-center">
                 🏆 Team 1
