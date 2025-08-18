@@ -43,7 +43,7 @@ export default function RootLayout({
               </a>
               . All rights reserved.
               <br />
-              <span className="text-xs text-gray-400">version: 1.2.0</span>
+              <span className="text-xs text-gray-400">version: 1.3.0</span>
             </p>
           </footer>
         </div>
