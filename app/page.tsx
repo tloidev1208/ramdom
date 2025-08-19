@@ -5,7 +5,7 @@ import NameList from "../components/NameList";
 import SpinAnimation from "../components/SpinAnimation";
 import TeamDisplay from "../components/TeamDisplay";
 
-export const LANES = [
+const LANES = [
   { key: "RỪNG", color: "text-green-600", bg: "bg-green-100", icon: "🌲" },
   { key: "TOP", color: "text-blue-600", bg: "bg-blue-100", icon: "🗡️" },
   { key: "MID", color: "text-purple-600", bg: "bg-purple-100", icon: "🔥" },
