@@ -1,16 +1,32 @@
-'use client';
+"use client";
 import React, { useState } from "react";
+import NameInput from "../components/NameInput";
+import NameList from "../components/NameList";
+import SpinAnimation from "../components/SpinAnimation";
+import TeamDisplay from "../components/TeamDisplay";
+
+export const LANES = [
+  { key: "RỪNG", color: "text-green-600", bg: "bg-green-100", icon: "🌲" },
+  { key: "TOP", color: "text-blue-600", bg: "bg-blue-100", icon: "🗡️" },
+  { key: "MID", color: "text-purple-600", bg: "bg-purple-100", icon: "🔥" },
+  { key: "AD", color: "text-yellow-600", bg: "bg-yellow-100", icon: "🏹" },
+  { key: "SP", color: "text-pink-600", bg: "bg-pink-100", icon: "🛡️" },
+];
 
 export default function App() {
-  const [name, setName] = useState<string>("");
+  const [name, setName] = useState("");
   const [names, setNames] = useState<string[]>([]);
-  const [displayName, setDisplayName] = useState<string>("");
-  const [isSpinning, setIsSpinning] = useState<boolean>(false);
+  const [displayName, setDisplayName] = useState("");
+  const [isSpinning, setIsSpinning] = useState(false);
   const [team1, setTeam1] = useState<string[]>([]);
   const [team2, setTeam2] = useState<string[]>([]);
-  const [spinTime, setSpinTime] = useState<string>("");
+  const [spinTime, setSpinTime] = useState("");
 
-  const addName = (): void => {
+  // state cho team có lane
+  const [team1WithLane, setTeam1WithLane] = useState<{ name: string; lane: string }[]>([]);
+  const [team2WithLane, setTeam2WithLane] = useState<{ name: string; lane: string }[]>([]);
+
+  const addName = () => {
     if (name.trim() !== "") {
       setNames((prev) => [...prev, name.trim()]);
       setName("");
@@ -26,13 +42,15 @@ export default function App() {
     return newArr;
   };
 
-  const spinAndAssign = (): void => {
+  const spinAndAssign = () => {
     if (names.length < 2 || isSpinning) return;
 
     setIsSpinning(true);
     setTeam1([]);
     setTeam2([]);
-    setSpinTime(""); // reset trước khi quay
+    setSpinTime("");
+    setTeam1WithLane([]);
+    setTeam2WithLane([]);
 
     let counter = 0;
     const interval = setInterval(() => {
@@ -43,15 +61,12 @@ export default function App() {
       if (counter > 20) {
         clearInterval(interval);
 
-        // Lưu thời gian quay
         const now = new Date();
-        const formatted =
-          now.toLocaleDateString("vi-VN") +
-          " " +
-          now.toLocaleTimeString("vi-VN");
-        setSpinTime(formatted);
+        setSpinTime(
+          now.toLocaleDateString("vi-VN") + " " + now.toLocaleTimeString("vi-VN")
+        );
 
-        const shuffled: string[] = shuffleArray(names);
+        const shuffled = shuffleArray(names);
         const t1: string[] = [];
         const t2: string[] = [];
 
@@ -67,6 +82,17 @@ export default function App() {
     }, 100);
   };
 
+  // 🎯 Hàm random lane
+  const assignLanes = () => {
+    if (team1.length === 5 && team2.length === 5) {
+      const shuffledLanes1 = shuffleArray(LANES);
+      const shuffledLanes2 = shuffleArray(LANES);
+
+      setTeam1WithLane(team1.map((n, i) => ({ name: n, lane: shuffledLanes1[i] })));
+      setTeam2WithLane(team2.map((n, i) => ({ name: n, lane: shuffledLanes2[i] })));
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 px-4 py-6">
       <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-xl p-6 flex flex-col items-center">
@@ -74,137 +100,64 @@ export default function App() {
           🎯 Random Teams Liên Quân
         </h1>
 
-        {/* Nhập tên */}
-        <div className="mb-4 flex flex-col sm:flex-row gap-2 w-full justify-center">
-          <input
-            type="text"
-            placeholder="Nhập tên..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addName()}
-            className="border-2 border-purple-300 rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500 transition w-full sm:w-1/2 text-gray-800"
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={addName}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-600 transition w-full sm:w-auto"
-            >
-              Thêm
-            </button>
-            <button
-              onClick={spinAndAssign}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-green-600 transition w-full sm:w-auto"
-            >
-              Quay & Chia Team
-            </button>
-            <button
-              onClick={() =>
-                setNames([
-                  "Lợi",
-                  "Huy",
-                  "Minh",
-                  "Thắng",
-                  "Bảo",
-                  "Bảo H",
-                  "Hưng",
-                  "Kiệt",
-                  "Nam",
-                  "Trường",
-                ])
-              }
-              className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-600 transition w-full sm:w-auto"
-            >
-              Nhập danh sách mặc định
-            </button>
-          </div>
+        {/* Input */}
+        <NameInput name={name} setName={setName} addName={addName} />
+
+        {/* Nút thao tác */}
+        <div className="flex flex-wrap gap-2 mt-3">
+          <button
+            onClick={spinAndAssign}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-green-600"
+          >
+            Quay & Chia Team
+          </button>
+          <button
+            onClick={() =>
+              setNames([
+                "Lợi",
+                "Huy",
+                "Minh",
+                "Thắng",
+                "Bảo",
+                "Bảo H",
+                "Hưng",
+                "Kiệt",
+                "Nam",
+                "Trường",
+              ])
+            }
+            className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-600"
+          >
+            Nhập danh sách mặc định
+          </button>
+          {/* 🎯 Nút Random Lane */}
+          <button
+            onClick={assignLanes}
+            disabled={team1.length !== 5 || team2.length !== 5}
+            className={`px-4 py-2 rounded-lg font-semibold shadow ${
+              team1.length === 5 && team2.length === 5
+                ? "bg-orange-500 text-white hover:bg-orange-600"
+                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+            }`}
+          >
+            Random Lane
+          </button>
         </div>
 
         {/* Danh sách chờ */}
-        <div className="mt-2 w-full">
-          <h3 className="font-semibold mb-2 text-gray-700">📋 Danh sách chờ:</h3>
-          {names.length > 0 ? (
-            <div className="overflow-x-auto max-h-80">
-              <table className="min-w-full bg-white border rounded-lg shadow text-gray-800">
-                <thead>
-                  <tr>
-                    <th className="px-4 py-2 border-b text-left">STT</th>
-                    <th className="px-4 py-2 border-b text-left">Tên</th>
-                    <th className="px-4 py-2 border-b text-left">Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {names.map((n, i) => (
-                    <tr key={n + i} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 border-b font-bold">{i + 1}</td>
-                      <td className="px-4 py-2 border-b">{n}</td>
-                      <td className="px-4 py-2 border-b">
-                        <button
-                          onClick={() => {
-                            setNames(names.filter((_, idx) => idx !== i));
-                          }}
-                          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs justify-center"
-                        >
-                          Xóa
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="italic text-gray-400">Không có ai</p>
-          )}
-        </div>
+        <NameList names={names} setNames={setNames} />
 
-        {/* Animation tên */}
-        {displayName && isSpinning && (
-          <div className="mt-8 p-6 text-3xl font-extrabold border-4 border-yellow-400 w-fit rounded-xl bg-yellow-100 shadow-lg animate-bounce">
-            {displayName}
-          </div>
-        )}
+        {/* Animation */}
+        {displayName && isSpinning && <SpinAnimation displayName={displayName} />}
 
-        {/* Ngày giờ quay */}
-        {!isSpinning && spinTime && (team1.length > 0 || team2.length > 0) && (
-          <div className="mt-6 text-center text-gray-500 text-sm font-medium">
-            <span>🕒 Quay lúc: {spinTime}</span>
-          </div>
-        )}
-
-        {/* Hai team */}
+        {/* Kết quả */}
         {!isSpinning && (team1.length > 0 || team2.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 w-full text-gray-800">
-            <div className="bg-blue-50 rounded-xl p-4 shadow max-h-100 overflow-y-auto">
-              <h2 className="text-xl font-bold mb-3 text-blue-700 text-center">
-                🏆 Team 1
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {team1.map((n, i) => (
-                  <div
-                    key={i}
-                    className="p-3 bg-white rounded-lg shadow text-center font-bold border border-blue-200"
-                  >
-                    {n}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-pink-50 rounded-xl p-4 shadow max-h-100 overflow-y-auto">
-              <h2 className="text-xl font-bold mb-3 text-pink-700 text-center">
-                🥇 Team 2
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {team2.map((n, i) => (
-                  <div
-                    key={i}
-                    className="p-3 bg-white rounded-lg shadow text-center font-bold border border-pink-200"
-                  >
-                    {n}
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="w-full mt-6">
+            <TeamDisplay
+              team1={team1WithLane.length ? team1WithLane : team1}
+              team2={team2WithLane.length ? team2WithLane : team2}
+              spinTime={spinTime}
+            />
           </div>
         )}
       </div>
