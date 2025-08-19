@@ -4,8 +4,8 @@ import NameInput from "../components/NameInput";
 import NameList from "../components/NameList";
 import SpinAnimation from "../components/SpinAnimation";
 import TeamDisplay from "../components/TeamDisplay";
+import DuckRandom from "../components/Duckramdom"; // 🆕 import
 
-// 🔹 Định nghĩa type cho Lane
 type Lane = {
   key: string;
   color: string;
@@ -13,7 +13,6 @@ type Lane = {
   icon: string;
 };
 
-// 🔹 Danh sách lane
 const LANES: Lane[] = [
   { key: "RỪNG", color: "text-green-600", bg: "bg-green-100", icon: "🌲" },
   { key: "TOP", color: "text-blue-600", bg: "bg-blue-100", icon: "🗡️" },
@@ -22,7 +21,6 @@ const LANES: Lane[] = [
   { key: "SP", color: "text-pink-600", bg: "bg-pink-100", icon: "🛡️" },
 ];
 
-// 🔹 Hàm shuffle dùng generic
 const shuffleArray = <T,>(array: T[]): T[] => {
   let newArr = [...array];
   for (let i = newArr.length - 1; i > 0; i--) {
@@ -41,9 +39,11 @@ export default function App() {
   const [team2, setTeam2] = useState<string[]>([]);
   const [spinTime, setSpinTime] = useState("");
 
-  // 🔹 state cho team có lane
   const [team1WithLane, setTeam1WithLane] = useState<{ name: string; lane: Lane }[]>([]);
   const [team2WithLane, setTeam2WithLane] = useState<{ name: string; lane: Lane }[]>([]);
+
+  // 🆕 state cho đua vịt
+  const [showDuckRace, setShowDuckRace] = useState(false);
 
   const addName = () => {
     if (name.trim() !== "") {
@@ -61,6 +61,7 @@ export default function App() {
     setSpinTime("");
     setTeam1WithLane([]);
     setTeam2WithLane([]);
+    setShowDuckRace(false); // reset đua vịt khi chia team mới
 
     let counter = 0;
     const interval = setInterval(() => {
@@ -90,29 +91,27 @@ export default function App() {
     }, 100);
   };
 
- // 🎯 Hàm random lane (dù team chưa đủ 5 người vẫn random)
-const assignLanes = () => {
-  if (team1.length > 0) {
-    const shuffledLanes1 = shuffleArray(LANES);
-    setTeam1WithLane(
-      team1.map((n, i) => ({
-        name: n,
-        lane: shuffledLanes1[i % LANES.length], // nếu nhiều hơn 5 thì quay vòng
-      }))
-    );
-  }
+  const assignLanes = () => {
+    if (team1.length > 0) {
+      const shuffledLanes1 = shuffleArray(LANES);
+      setTeam1WithLane(
+        team1.map((n, i) => ({
+          name: n,
+          lane: shuffledLanes1[i % LANES.length],
+        }))
+      );
+    }
 
-  if (team2.length > 0) {
-    const shuffledLanes2 = shuffleArray(LANES);
-    setTeam2WithLane(
-      team2.map((n, i) => ({
-        name: n,
-        lane: shuffledLanes2[i % LANES.length],
-      }))
-    );
-  }
-};
-
+    if (team2.length > 0) {
+      const shuffledLanes2 = shuffleArray(LANES);
+      setTeam2WithLane(
+        team2.map((n, i) => ({
+          name: n,
+          lane: shuffledLanes2[i % LANES.length],
+        }))
+      );
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 px-4 py-6">
@@ -135,35 +134,41 @@ const assignLanes = () => {
           <button
             onClick={() =>
               setNames([
-                "Lợi",
-                "Huy",
-                "Minh",
-                "Thắng",
-                "Bảo",
-                "Bảo H",
-                "Hưng",
-                "Kiệt",
-                "Nam",
-                "Trường",
+                "Lợi", "Huy", "Minh", "Thắng", "Bảo",
+                "Bảo H", "Hưng", "Kiệt", "Nam", "Trường",
               ])
             }
             className="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-purple-600"
           >
             Nhập danh sách mặc định
           </button>
-          {/* 🎯 Nút Random Lane */}
-         <button
-  onClick={assignLanes}
-  disabled={team1.length === 0 && team2.length === 0}
-  className={`px-4 py-2 rounded-lg font-semibold shadow ${
-    team1.length > 0 || team2.length > 0
-      ? "bg-orange-500 text-white hover:bg-orange-600"
-      : "bg-gray-300 text-gray-600 cursor-not-allowed"
-  }`}
->
-  Random Lane
-</button>
+        </div>
 
+        {/* Hàng riêng cho 2 nút lane */}
+        <div className="flex gap-2 mt-2 w-full justify-center">
+          <button
+            onClick={assignLanes}
+            disabled={team1.length === 0 && team2.length === 0}
+            className={`px-4 py-2 rounded-lg font-semibold shadow ${
+              team1.length > 0 || team2.length > 0
+                ? "bg-orange-500 text-white hover:bg-orange-600"
+                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+            }`}
+          >
+            Random Lane
+          </button>
+          <div className="text-gray-800">Hoặc</div>
+          <button
+            onClick={() => setShowDuckRace(true)}
+            disabled={team1.length === 0 && team2.length === 0}
+            className={`px-4 py-2 rounded-lg font-semibold shadow ${
+              team1.length > 0 || team2.length > 0
+                ? "bg-blue-500 text-white hover:bg-blue-600"
+                : "bg-gray-300 text-gray-600 cursor-not-allowed"
+            }`}
+          >
+            🦆 Đua Vịt Tranh Lane
+          </button>
         </div>
 
         {/* Danh sách chờ */}
@@ -180,6 +185,10 @@ const assignLanes = () => {
               team2={team2WithLane.length ? team2WithLane : team2}
               spinTime={spinTime}
             />
+
+            {/* 🆕 hiển thị giao diện đua vịt */}
+            {showDuckRace && <DuckRandom team1={team1} team2={team2} />}
+
           </div>
         )}
       </div>
