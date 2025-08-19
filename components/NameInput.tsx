@@ -22,7 +22,7 @@ export default function NameInput({ name, setName, addName }: Props) {
         onClick={addName}
         className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-600 transition w-full sm:w-auto"
       >
-        Thêm
+        Thêm mới
       </button>
     </div>
   );

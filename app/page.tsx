@@ -90,16 +90,29 @@ export default function App() {
     }, 100);
   };
 
-  // 🎯 Hàm random lane
-  const assignLanes = () => {
-    if (team1.length === 5 && team2.length === 5) {
-      const shuffledLanes1 = shuffleArray(LANES);
-      const shuffledLanes2 = shuffleArray(LANES);
+ // 🎯 Hàm random lane (dù team chưa đủ 5 người vẫn random)
+const assignLanes = () => {
+  if (team1.length > 0) {
+    const shuffledLanes1 = shuffleArray(LANES);
+    setTeam1WithLane(
+      team1.map((n, i) => ({
+        name: n,
+        lane: shuffledLanes1[i % LANES.length], // nếu nhiều hơn 5 thì quay vòng
+      }))
+    );
+  }
 
-      setTeam1WithLane(team1.map((n, i) => ({ name: n, lane: shuffledLanes1[i] })));
-      setTeam2WithLane(team2.map((n, i) => ({ name: n, lane: shuffledLanes2[i] })));
-    }
-  };
+  if (team2.length > 0) {
+    const shuffledLanes2 = shuffleArray(LANES);
+    setTeam2WithLane(
+      team2.map((n, i) => ({
+        name: n,
+        lane: shuffledLanes2[i % LANES.length],
+      }))
+    );
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 px-4 py-6">
@@ -139,17 +152,18 @@ export default function App() {
             Nhập danh sách mặc định
           </button>
           {/* 🎯 Nút Random Lane */}
-          <button
-            onClick={assignLanes}
-            disabled={team1.length !== 5 || team2.length !== 5}
-            className={`px-4 py-2 rounded-lg font-semibold shadow ${
-              team1.length === 5 && team2.length === 5
-                ? "bg-orange-500 text-white hover:bg-orange-600"
-                : "bg-gray-300 text-gray-600 cursor-not-allowed"
-            }`}
-          >
-            Random Lane
-          </button>
+         <button
+  onClick={assignLanes}
+  disabled={team1.length === 0 && team2.length === 0}
+  className={`px-4 py-2 rounded-lg font-semibold shadow ${
+    team1.length > 0 || team2.length > 0
+      ? "bg-orange-500 text-white hover:bg-orange-600"
+      : "bg-gray-300 text-gray-600 cursor-not-allowed"
+  }`}
+>
+  Random Lane
+</button>
+
         </div>
 
         {/* Danh sách chờ */}
