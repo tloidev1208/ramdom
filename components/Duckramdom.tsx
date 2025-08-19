@@ -1,9 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
 
+type Lane = {
+  key: string;
+  color: string;
+  bg: string;
+  icon: string;
+};
+
 interface DuckRandomProps {
   team1: string[];
   team2: string[];
+  lanes: Lane[]; // 👈 thêm dòng này
 }
 
 type Duck = {
@@ -14,7 +22,7 @@ type Duck = {
 
 const DOCKS = ["🌲RỪNG", "🗡️TOP", "🔥 MID", "🏹AD", "🛡️SP"];
 
-export default function DuckRandom({ team1, team2 }: DuckRandomProps) {
+export default function DuckRandom({ team1, team2, lanes }: DuckRandomProps) {
   const [ducks, setDucks] = useState<Duck[]>([]);
   const [timeLeft, setTimeLeft] = useState(5); // 5 giây đua
   const [results, setResults] = useState<{ dock: string; ducks: string[] }[]>([]);
