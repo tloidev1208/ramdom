@@ -5,13 +5,32 @@ import NameList from "../components/NameList";
 import SpinAnimation from "../components/SpinAnimation";
 import TeamDisplay from "../components/TeamDisplay";
 
-const LANES = [
+// 🔹 Định nghĩa type cho Lane
+type Lane = {
+  key: string;
+  color: string;
+  bg: string;
+  icon: string;
+};
+
+// 🔹 Danh sách lane
+const LANES: Lane[] = [
   { key: "RỪNG", color: "text-green-600", bg: "bg-green-100", icon: "🌲" },
   { key: "TOP", color: "text-blue-600", bg: "bg-blue-100", icon: "🗡️" },
   { key: "MID", color: "text-purple-600", bg: "bg-purple-100", icon: "🔥" },
   { key: "AD", color: "text-yellow-600", bg: "bg-yellow-100", icon: "🏹" },
   { key: "SP", color: "text-pink-600", bg: "bg-pink-100", icon: "🛡️" },
 ];
+
+// 🔹 Hàm shuffle dùng generic
+const shuffleArray = <T,>(array: T[]): T[] => {
+  let newArr = [...array];
+  for (let i = newArr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+  }
+  return newArr;
+};
 
 export default function App() {
   const [name, setName] = useState("");
@@ -22,24 +41,15 @@ export default function App() {
   const [team2, setTeam2] = useState<string[]>([]);
   const [spinTime, setSpinTime] = useState("");
 
-  // state cho team có lane
-  const [team1WithLane, setTeam1WithLane] = useState<{ name: string; lane: string }[]>([]);
-  const [team2WithLane, setTeam2WithLane] = useState<{ name: string; lane: string }[]>([]);
+  // 🔹 state cho team có lane
+  const [team1WithLane, setTeam1WithLane] = useState<{ name: string; lane: Lane }[]>([]);
+  const [team2WithLane, setTeam2WithLane] = useState<{ name: string; lane: Lane }[]>([]);
 
   const addName = () => {
     if (name.trim() !== "") {
       setNames((prev) => [...prev, name.trim()]);
       setName("");
     }
-  };
-
-  const shuffleArray = (array: string[]): string[] => {
-    let newArr = [...array];
-    for (let i = newArr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-    }
-    return newArr;
   };
 
   const spinAndAssign = () => {
@@ -62,9 +72,7 @@ export default function App() {
         clearInterval(interval);
 
         const now = new Date();
-        setSpinTime(
-          now.toLocaleDateString("vi-VN") + " " + now.toLocaleTimeString("vi-VN")
-        );
+        setSpinTime(now.toLocaleDateString("vi-VN") + " " + now.toLocaleTimeString("vi-VN"));
 
         const shuffled = shuffleArray(names);
         const t1: string[] = [];
