@@ -283,9 +283,19 @@ export default function MainPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
               {Object.entries(results).map(([player, roles]) => (
                 <div
-                  key={player}
-                  className="bg-white shadow-lg rounded-2xl p-6"
-                >
+  key={player}
+  className="group relative bg-white shadow-lg rounded-2xl p-6 
+             transform transition-all duration-300 
+             hover:-translate-y-2 hover:shadow-2xl hover:ring-4 hover:ring-blue-400"
+>
+  <img
+    src="/images/cow.png"
+    alt="highlight"
+    className="absolute -top-14 left-1/2 transform -translate-x-1/2 
+               w-16 h-16 opacity-0 transition-all duration-300 
+               pointer-events-none
+               group-hover:opacity-100 group-hover:-translate-y-2"
+  />
                   <h2 className="text-xl font-semibold mb-4 text-center">
                     {player}
                   </h2>
