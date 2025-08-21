@@ -3,7 +3,6 @@ import { useState,useEffect } from "react";
 import { heroes } from "@/app/LegendRamdom/heroes";
 import TeamDisplay from "../components/TeamDisplay";
 import DuckRandom from "../components/Duckramdom";
-import SpinAnimation from "../components/SpinAnimation";
 
 type Lane = {
   key: string;
@@ -122,18 +121,23 @@ export default function MainPage() {
   };
 
   // Hero mode functions
-  const randomHeroes = () => {
-    const getRandomOne = (arr: string[]) =>
-      arr[Math.floor(Math.random() * arr.length)];
-    const newResults: Record<string, Record<string, string>> = {};
-    players.forEach((player) => {
-      newResults[player] = {};
-      Object.entries(heroes).forEach(([role, list]) => {
-        newResults[player][role] = getRandomOne(list);
-      });
+const randomHeroes = () => {
+  const newResults: Record<string, Record<string, string>> = {};
+
+  Object.entries(heroes).forEach(([role, list]) => {
+    // Trộn danh sách hero của role đó
+    const shuffled = shuffleArray(list);
+
+    players.forEach((player, index) => {
+      if (!newResults[player]) newResults[player] = {};
+
+      // Gán hero theo thứ tự -> không bị trùng
+      newResults[player][role] = shuffled[index % shuffled.length];
     });
-    setResults(newResults);
-  };
+  });
+
+  setResults(newResults);
+};
  useEffect(() => {
     const now = new Date();
 
@@ -228,7 +232,7 @@ export default function MainPage() {
                 }
                 className="bg-blue-500 text-white px-4 py-2 rounded shadow"
               >
-                Nhập danh sách mặc định
+                Danh sách mặc định
               </button>
             </div>
 
@@ -256,12 +260,16 @@ export default function MainPage() {
             {/* TEAM & HERO RANDOM ON SAME PAGE */}
             <div className="text-center">
               <div className="flex justify-center gap-3 mb-4">
-                <button
-                  onClick={spinAndAssign}
-                  className="bg-green-500 text-white px-4 py-2 rounded shadow"
-                >
-                  Chia Team
-                </button>
+              <button
+  onClick={spinAndAssign}
+  disabled={isSpinning}
+  className={`px-4 py-2 rounded shadow ${
+    isSpinning ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 text-white"
+  }`}
+>
+  {isSpinning ? "Đang xử lý..." : "Chia Team"}
+</button>
+
                 <button
                   onClick={assignLanes}
                   disabled={!team1.length && !team2.length}
@@ -279,7 +287,7 @@ export default function MainPage() {
                 >
                   Random Tướng cho tất cả
                 </button>
-                 <button
+                {/* <button
                   onClick={() => setMode("duck")}
                   disabled={!team1.length && !team2.length}
                   className={`px-4 py-2 rounded shadow ${
@@ -289,7 +297,7 @@ export default function MainPage() {
                   }`}
                 >
                   🦆 Đua Vịt
-                </button>
+                </button>*/}
               </div>
 
               {(team1.length > 0 || team2.length > 0) && (
