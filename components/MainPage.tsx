@@ -228,16 +228,16 @@ export default function MainPage() {
               <button
                 onClick={() =>
                   setPlayers([
-                    "Lợi",
-                    "Hòa Minzy",
-                    "Minh",
-                    "Thắng",
-                    "Gia Bảo",
-                    "Hoàng Bảo",
-                    "Hưng",
-                    "Kiệt",
-                    "Hùng",
-                    "Trường",
+                    "Lợi (Masaru)",
+                    "Huy (Écccpẹcpẹcpẹc)",
+                    "Minh (iamminh)",
+                    "Thắng (Gia Cát Lượng)",
+                    "Gia Bảo (ThằngNàoZậy)",
+                    "Hoàng Bảo (HoànqBảooo)",
+                    "Hưng (~THD~Bucky)",
+                    "Kiệt (PhởBEEF)",
+                    "Nam (Vinamilk)",
+                    "Trường (ⒷⓁⓊⒺⓈ)",
                   ])
                 }
                 className="bg-blue-500 text-white px-4 py-2 rounded shadow"
@@ -365,7 +365,7 @@ export default function MainPage() {
                               className="flex flex-col sm:flex-row sm:items-center gap-2 bg-white rounded-lg shadow px-4 py-2"
                             >
                               <span className="font-bold">{idx + 1}.</span>
-                              <span className="w-25">{name}</span>
+                              <span className="w-28">{name}</span>
                               {lane && (
                                 <span
                                   className={`ml-2 px-2 py-1 rounded w-20 ${lane.bg} ${lane.color} text-xs`}
