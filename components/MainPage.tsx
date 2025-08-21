@@ -284,7 +284,11 @@ const randomHeroes = () => {
                 <button
                   onClick={randomHeroes}
                    disabled={!team1.length && !team2.length}
-                  className="bg-green-600 text-white px-6 py-2 rounded shadow"
+                   className={`className="bg-green-600 px-6 py-2 rounded shadow ${
+                    team1.length || team2.length
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-300 text-gray-500"
+                  }`}
                 >
                   Random Tướng cho tất cả
                 </button>
