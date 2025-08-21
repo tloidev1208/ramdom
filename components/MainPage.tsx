@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { heroes } from "@/app/LegendRamdom/heroes";
 import TeamDisplay from "../components/TeamDisplay";
 import DuckRandom from "../components/Duckramdom";
@@ -30,11 +30,11 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 };
 
 export default function MainPage() {
-  const [mode, setMode] = useState<"team" | "hero">("team");
-
   // Chung
   const [playerName, setPlayerName] = useState("");
   const [players, setPlayers] = useState<string[]>([]);
+  const [dateTime, setDateTime] = useState<string>("");
+  const [location, setLocation] = useState<string>("Đang lấy vị trí...");
 
   // Team mode
   const [team1, setTeam1] = useState<string[]>([]);
@@ -53,6 +53,8 @@ export default function MainPage() {
   const [results, setResults] = useState<
     Record<string, Record<string, string>>
   >({});
+
+  const [mode, setMode] = useState<"main" | "duck">("main");
 
   const addPlayer = () => {
     if (playerName.trim() && !players.includes(playerName)) {
@@ -132,6 +134,56 @@ export default function MainPage() {
     });
     setResults(newResults);
   };
+ useEffect(() => {
+    const now = new Date();
+
+    // Format theo locale VN
+    const formatted = now.toLocaleDateString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }) + " " + now.toLocaleTimeString("vi-VN");
+
+    setDateTime(formatted);
+  }, []);
+
+   useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          try {
+            // Gọi API OpenStreetMap để lấy tên địa điểm
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+            );
+            const data = await res.json();
+
+            if (data?.address) {
+              const { suburb, city, town, village, state, country } =
+                data.address;
+
+              // Ghép thông tin địa điểm
+              const locationName =
+                suburb || city || town || village || state || country || "Không xác định";
+
+              setLocation(`${locationName}`);
+            } else {
+              setLocation(`Vĩ độ: ${latitude}, Kinh độ: ${longitude}`);
+            }
+          } catch (error) {
+            setLocation("Không lấy được địa điểm thực tế");
+          }
+        },
+        (error) => {
+          setLocation("Không lấy được vị trí: " + error.message);
+        }
+      );
+    } else {
+      setLocation("Trình duyệt không hỗ trợ Geolocation");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 px-4 py-6">
@@ -140,176 +192,245 @@ export default function MainPage() {
           🎮 Random Tool
         </h1>
 
-        {/* Switch mode */}
-        <div className="flex justify-center gap-4 mb-6">
-          <button
-            onClick={() => setMode("team")}
-            className={`px-4 py-2 rounded font-semibold ${
-              mode === "team" ? "bg-green-600 text-white" : "bg-gray-200"
-            }`}
-          >
-            Random Team
-          </button>
-          <button
-            onClick={() => setMode("hero")}
-            className={`px-4 py-2 rounded font-semibold ${
-              mode === "hero" ? "bg-blue-600 text-white" : "bg-gray-200"
-            }`}
-          >
-            Random Tướng
-          </button>
-        </div>
-
-        {/* Input player */}
-        <div className="flex flex-col sm:flex-row gap-2 mb-6 justify-center text-center items-center">
-          <input
-            type="text"
-            value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addPlayer()}
-            placeholder="Nhập tên người chơi"
-            className="border p-2 rounded w-64"
-          />
-          <button
-            onClick={addPlayer}
-            className="bg-purple-500 text-white px-4 py-2 rounded shadow w-[220px]"
-          >
-            Thêm mới
-          </button>
-          <div className="">hoặc</div>
-          <button
-            onClick={() =>
-              setPlayers([
-                "Lợi",
-                "Huy",
-                "Minh",
-                "Thắng",
-                "Gia Bảo",
-                "Hoàng Bảo",
-                "Hưng",
-                "Kiệt",
-                "Hùng",
-                "Trường",
-              ])
-            }
-            className="bg-blue-500 text-white px-4 py-2 rounded shadow"
-          >
-            Nhập danh sách mặc định
-          </button>
-        </div>
-
-        {/* Player list */}
-        {players.length > 0 && (
-          <ul className="mb-6 flex flex-wrap gap-4 justify-center max-h-30 overflow-y-auto">
-            {players.map((p, i) => (
-              <li
-                key={p}
-                className="flex items-center gap-3 bg-gray-50 shadow px-4 py-2 mb-1 rounded-full"
-              >
-                <span className="font-bold mr-2">{i + 1}.</span>
-                <span>{p}</span>
-                <button
-                  onClick={() => removePlayer(p)}
-                  className="text-red-500"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* MODE: TEAM */}
-        {mode === "team" && (
-          <div className="text-center">
-            <div className="flex justify-center gap-3 mb-4">
+        {mode === "main" && (
+          <>
+            {/* Input player */}
+            <div className="flex flex-col sm:flex-row gap-2 mb-6 justify-center text-center items-center">
+              <input
+                type="text"
+                value={playerName}
+                onChange={(e) => setPlayerName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addPlayer()}
+                placeholder="Nhập tên người chơi"
+                className="border p-2 rounded w-64"
+              />
               <button
-                onClick={spinAndAssign}
-                className="bg-green-500 text-white px-4 py-2 rounded shadow"
+                onClick={addPlayer}
+                className="bg-purple-500 text-white px-4 py-2 rounded shadow w-[220px]"
               >
-                Chia Team
+                Thêm mới
               </button>
+              <div className="">hoặc</div>
               <button
-                onClick={assignLanes}
-                disabled={!team1.length && !team2.length}
-                className={`px-4 py-2 rounded shadow ${
-                  team1.length || team2.length
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-300 text-gray-500"
-                }`}
+                onClick={() =>
+                  setPlayers([
+                    "Lợi",
+                    "Huy",
+                    "Minh",
+                    "Thắng",
+                    "Gia Bảo",
+                    "Hoàng Bảo",
+                    "Hưng",
+                    "Kiệt",
+                    "Hùng",
+                    "Trường",
+                  ])
+                }
+                className="bg-blue-500 text-white px-4 py-2 rounded shadow"
               >
-                Random Lane
-              </button>
-              <button
-                onClick={() => setShowDuckRace(true)}
-                disabled={!team1.length && !team2.length}
-                className={`px-4 py-2 rounded shadow ${
-                  team1.length || team2.length
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-300 text-gray-500"
-                }`}
-              >
-                🦆 Đua Vịt
+                Nhập danh sách mặc định
               </button>
             </div>
 
-            {(team1.length > 0 || team2.length > 0) && (
-              <>
-                {isSpinning && <SpinAnimation displayName={displayName} />}
-                <TeamDisplay
-                  team1={team1WithLane.length ? team1WithLane : team1}
-                  team2={team2WithLane.length ? team2WithLane : team2}
-                  spinTime={""}
-                />
-                {showDuckRace && (
-                  <DuckRandom team1={team1} team2={team2} lanes={LANES} />
-                )}
-              </>
+            {/* Player list */}
+            {players.length > 0 && (
+              <ul className="mb-6 flex flex-wrap gap-4 justify-center max-h-30 overflow-y-auto">
+                {players.map((p, i) => (
+                  <li
+                    key={p}
+                    className="flex items-center gap-3 bg-gray-50 shadow px-4 py-2 mb-1 rounded-full"
+                  >
+                    <span className="font-bold mr-2">{i + 1}.</span>
+                    <span>{p}</span>
+                    <button
+                      onClick={() => removePlayer(p)}
+                      className="text-red-500"
+                    >
+                      ✕
+                    </button>
+                  </li>
+                ))}
+              </ul>
             )}
-          </div>
-        )}
 
-        {/* MODE: HERO */}
-        {mode === "hero" && (
-          <div>
-            <div className="text-center mb-6">
-              <button
-                onClick={randomHeroes}
-                className="bg-green-600 text-white px-6 py-2 rounded shadow"
-              >
-                Random Tướng cho tất cả
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-              {Object.entries(results).map(([player, roles]) => (
-                <div
-  key={player}
-  className="group relative bg-white shadow-lg rounded-2xl p-6 
-             transform transition-all duration-300 
-             hover:-translate-y-2 hover:shadow-2xl hover:ring-4 hover:ring-blue-400"
->
-  <img
-    src="/images/cow.png"
-    alt="highlight"
-    className="absolute -top-14 left-1/2 transform -translate-x-1/2 
-               w-16 h-16 opacity-0 transition-all duration-300 
-               pointer-events-none
-               group-hover:opacity-100 group-hover:-translate-y-2"
-  />
-                  <h2 className="text-xl font-semibold mb-4 text-center">
-                    {player}
-                  </h2>
-                  <div className="flex flex-col gap-2">
-                    {Object.entries(roles).map(([role, hero]) => (
-                      <div key={role} className="flex justify-between">
-                        <span className="font-bold">{role}</span>
-                        <span className="text-blue-600">{hero}</span>
-                      </div>
-                    ))}
+            {/* TEAM & HERO RANDOM ON SAME PAGE */}
+            <div className="text-center">
+              <div className="flex justify-center gap-3 mb-4">
+                <button
+                  onClick={spinAndAssign}
+                  className="bg-green-500 text-white px-4 py-2 rounded shadow"
+                >
+                  Chia Team
+                </button>
+                <button
+                  onClick={assignLanes}
+                  disabled={!team1.length && !team2.length}
+                  className={`px-4 py-2 rounded shadow ${
+                    team1.length || team2.length
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-300 text-gray-500"
+                  }`}
+                >
+                  Random Lane
+                </button>
+                <button
+                  onClick={randomHeroes}
+                  className="bg-green-600 text-white px-6 py-2 rounded shadow"
+                >
+                  Random Tướng cho tất cả
+                </button>
+                 <button
+                  onClick={() => setMode("duck")}
+                  disabled={!team1.length && !team2.length}
+                  className={`px-4 py-2 rounded shadow ${
+                    team1.length || team2.length
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-300 text-gray-500"
+                  }`}
+                >
+                  🦆 Đua Vịt
+                </button>
+              </div>
+
+              {(team1.length > 0 || team2.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
+                  {/* Team 1 */}
+                  <div className="bg-gray-50 rounded-xl shadow p-4">
+                    <p className="text-sm text-gray-800">🕔Random lúc: {dateTime}, {location}</p>
+                    <h2 className="text-xl font-bold mb-4 text-green-700 text-center">
+                      Team 1
+                    </h2>
+                    <ul className="space-y-3">
+                      {(team1WithLane.length ? team1WithLane : team1).map(
+                        (member, idx) => {
+                          const name = typeof member === "string" ? member : member.name;
+                          const lane = typeof member === "string" ? undefined : member.lane;
+                          const heroList = results[name];
+                          return (
+                            <li
+                              key={name}
+                              className="flex flex-col sm:flex-row sm:items-center gap-2 bg-white rounded-lg shadow px-4 py-2"
+                            >
+                              <span className="font-bold">{idx + 1}.</span>
+                              <span className="w-25">{name}</span>
+                              {lane && (
+                                <span
+                                  className={`ml-2 px-2 py-1 rounded w-20 ${lane.bg} ${lane.color} text-xs`}
+                                >
+                                  {lane.icon} {lane.key}
+                                </span>
+                              )}
+                              {heroList && (
+                                <div className="flex flex-wrap gap-2 ml-2">
+                                  {Object.entries(heroList).map(([role, hero]) => (
+                                    <span
+                                      key={role}
+                                      className="bg-blue-100 text-blue-700 w-[150px] px-2 py-1 rounded text-xs"
+                                    >
+                                      <b>{role}:</b> {hero}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        }
+                      )}
+                    </ul>
+                  </div>
+                  {/* Team 2 */}
+                  <div className="bg-gray-50 rounded-xl shadow p-4">
+                    <h2 className="text-xl font-bold mb-4 text-purple-700 text-center">
+                      Team 2
+                    </h2>
+                    <ul className="space-y-3">
+                      {(team2WithLane.length ? team2WithLane : team2).map(
+                        (member, idx) => {
+                          const name = typeof member === "string" ? member : member.name;
+                          const lane = typeof member === "string" ? undefined : member.lane;
+                          const heroList = results[name];
+                          return (
+                            <li
+                              key={name}
+                              className="flex flex-col sm:flex-row sm:items-center gap-2 bg-white rounded-lg shadow px-4 py-2"
+                            >
+                              <span className="font-bold">{idx + 1}.</span>
+                              <span className="w-25">{name}</span>
+                              {lane && (
+                                <span
+                                  className={`ml-2 px-2 py-1 rounded w-20 ${lane.bg} ${lane.color} text-xs`}
+                                >
+                                  {lane.icon} {lane.key}
+                                </span>
+                              )}
+                              {heroList && (
+                                <div className="flex flex-wrap gap-2 ml-2">
+                                  {Object.entries(heroList).map(([role, hero]) => (
+                                    <span
+                                      key={role}
+                                      className="bg-blue-100 text-blue-700 w-[150px] px-2 py-1 rounded text-xs"
+                                    >
+                                      <b>{role}:</b> {hero}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </li>
+                          );
+                        }
+                      )}
+                    </ul>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {/* HERO RANDOM RESULT */}
+              {/* {Object.keys(results).length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6 mt-8">
+                  {Object.entries(results).map(([player, roles]) => (
+                    <div
+                      key={player}
+                      className="group relative bg-white shadow-lg rounded-2xl p-6 
+                 transform transition-all duration-300 
+                 hover:-translate-y-2 hover:shadow-2xl hover:ring-4 hover:ring-blue-400"
+                    >
+                      <img
+                        src="/images/cow.png"
+                        alt="highlight"
+                        className="absolute -top-14 left-1/2 transform -translate-x-1/2 
+                   w-16 h-16 opacity-0 transition-all duration-300 
+                   pointer-events-none
+                   group-hover:opacity-100 group-hover:-translate-y-2"
+                      />
+                      <h2 className="text-xl font-semibold mb-4 text-center">
+                        {player}
+                      </h2>
+                      <div className="flex flex-col gap-2">
+                        {Object.entries(roles).map(([role, hero]) => (
+                          <div key={role} className="flex justify-between">
+                            <span className="font-bold">{role}</span>
+                            <span className="text-blue-600">{hero}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )} */}
             </div>
+          </>
+        )}
+
+        {/* Duck Race Mode */}
+        {mode === "duck" && (
+          <div>
+            <button
+              onClick={() => setMode("main")}
+              className="mb-4 px-4 py-2 rounded shadow bg-gray-200 hover:bg-gray-300"
+            >
+              ← Quay lại
+            </button>
+            <DuckRandom team1={team1} team2={team2} lanes={LANES} />
           </div>
         )}
       </div>
