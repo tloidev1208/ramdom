@@ -1,5 +1,5 @@
 "use client";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { heroes } from "@/app/LegendRamdom/heroes";
 import TeamDisplay from "../components/TeamDisplay";
 import DuckRandom from "../components/Duckramdom";
@@ -47,6 +47,7 @@ export default function MainPage() {
   const [showDuckRace, setShowDuckRace] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [displayName, setDisplayName] = useState("");
+  const [selectedGame, setSelectedGame] = useState<number>(1);
 
   // Hero mode
   const [results, setResults] = useState<
@@ -121,37 +122,40 @@ export default function MainPage() {
   };
 
   // Hero mode functions
-const randomHeroes = () => {
-  const newResults: Record<string, Record<string, string>> = {};
+  const randomHeroes = () => {
+    const newResults: Record<string, Record<string, string>> = {};
 
-  Object.entries(heroes).forEach(([role, list]) => {
-    // Trộn danh sách hero của role đó
-    const shuffled = shuffleArray(list);
+    Object.entries(heroes).forEach(([role, list]) => {
+      // Trộn danh sách hero của role đó
+      const shuffled = shuffleArray(list);
 
-    players.forEach((player, index) => {
-      if (!newResults[player]) newResults[player] = {};
+      players.forEach((player, index) => {
+        if (!newResults[player]) newResults[player] = {};
 
-      // Gán hero theo thứ tự -> không bị trùng
-      newResults[player][role] = shuffled[index % shuffled.length];
+        // Gán hero theo thứ tự -> không bị trùng
+        newResults[player][role] = shuffled[index % shuffled.length];
+      });
     });
-  });
 
-  setResults(newResults);
-};
- useEffect(() => {
+    setResults(newResults);
+  };
+  useEffect(() => {
     const now = new Date();
 
     // Format theo locale VN
-    const formatted = now.toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }) + " " + now.toLocaleTimeString("vi-VN");
+    const formatted =
+      now.toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }) +
+      " " +
+      now.toLocaleTimeString("vi-VN");
 
     setDateTime(formatted);
   }, []);
 
-   useEffect(() => {
+  useEffect(() => {
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -170,7 +174,13 @@ const randomHeroes = () => {
 
               // Ghép thông tin địa điểm
               const locationName =
-                suburb || city || town || village || state || country || "Không xác định";
+                suburb ||
+                city ||
+                town ||
+                village ||
+                state ||
+                country ||
+                "Không xác định";
 
               setLocation(`${locationName}`);
             } else {
@@ -219,7 +229,7 @@ const randomHeroes = () => {
                 onClick={() =>
                   setPlayers([
                     "Lợi",
-                    "Huy",
+                    "Hòa Minzy",
                     "Minh",
                     "Thắng",
                     "Gia Bảo",
@@ -260,15 +270,17 @@ const randomHeroes = () => {
             {/* TEAM & HERO RANDOM ON SAME PAGE */}
             <div className="text-center">
               <div className="flex justify-center gap-3 mb-4">
-              <button
-  onClick={spinAndAssign}
-  disabled={isSpinning}
-  className={`px-4 py-2 rounded shadow ${
-    isSpinning ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 text-white"
-  }`}
->
-  {isSpinning ? "Đang xử lý..." : "Chia Team"}
-</button>
+                <button
+                  onClick={spinAndAssign}
+                  disabled={isSpinning}
+                  className={`px-4 py-2 rounded shadow ${
+                    isSpinning
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-green-500 text-white"
+                  }`}
+                >
+                  {isSpinning ? "Đang xử lý..." : "Chia Team"}
+                </button>
 
                 <button
                   onClick={assignLanes}
@@ -283,8 +295,8 @@ const randomHeroes = () => {
                 </button>
                 <button
                   onClick={randomHeroes}
-                   disabled={!team1.length && !team2.length}
-                   className={`className="bg-green-600 px-6 py-2 rounded shadow ${
+                  disabled={!team1.length && !team2.length}
+                  className={`className="bg-green-600 px-6 py-2 rounded shadow ${
                     team1.length || team2.length
                       ? "bg-orange-500 text-white"
                       : "bg-gray-300 text-gray-500"
@@ -309,15 +321,43 @@ const randomHeroes = () => {
                 <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
                   {/* Team 1 */}
                   <div className="bg-gray-50 rounded-xl shadow p-4">
-                    <p className="text-sm text-gray-800">🕔Random lúc: {dateTime}, {location}</p>
-                    <h2 className="text-xl font-bold mb-4 text-green-700 text-center">
-                      Team 1
-                    </h2>
+                    <p className="text-sm text-gray-800">
+                      🕔Random lúc: {dateTime}, {location}
+                    </p>
+                    <div className="flex items-center justify-between px-4 mb-4">
+  {/* Select bên trái */}
+  <select
+    value={selectedGame}
+    onChange={(e) => setSelectedGame(Number(e.target.value))}
+    className="border border-gray-300 rounded-xl px-4 py-2 text-lg font-semibold 
+               bg-gradient-to-r from-indigo-100 to-purple-100 
+               shadow-md hover:shadow-lg transition duration-300"
+  >
+    {[1, 2, 3, 4, 5].map((num) => (
+      <option key={num} value={num}>
+        Game {num}
+      </option>
+    ))}
+  </select>
+
+  {/* Title nằm giữa */}
+  <h2 className="text-2xl font-bold text-green-700 text-center flex-1">
+    Team 1
+  </h2>
+
+  {/* Chừa 1 div trống bên phải để cân đối */}
+  <div className="w-[120px]" />
+</div>
+
                     <ul className="space-y-3">
                       {(team1WithLane.length ? team1WithLane : team1).map(
                         (member, idx) => {
-                          const name = typeof member === "string" ? member : member.name;
-                          const lane = typeof member === "string" ? undefined : member.lane;
+                          const name =
+                            typeof member === "string" ? member : member.name;
+                          const lane =
+                            typeof member === "string"
+                              ? undefined
+                              : member.lane;
                           const heroList = results[name];
                           return (
                             <li
@@ -335,14 +375,16 @@ const randomHeroes = () => {
                               )}
                               {heroList && (
                                 <div className="flex flex-wrap gap-2 ml-2">
-                                  {Object.entries(heroList).map(([role, hero]) => (
-                                    <span
-                                      key={role}
-                                      className="bg-blue-100 text-blue-700 w-[150px] px-2 py-1 rounded text-xs"
-                                    >
-                                      <b>{role}:</b> {hero}
-                                    </span>
-                                  ))}
+                                  {Object.entries(heroList).map(
+                                    ([role, hero]) => (
+                                      <span
+                                        key={role}
+                                        className="bg-blue-100 text-blue-700 w-[150px] px-2 py-1 rounded text-xs"
+                                      >
+                                        <b>{role}:</b> {hero}
+                                      </span>
+                                    )
+                                  )}
                                 </div>
                               )}
                             </li>
@@ -353,14 +395,18 @@ const randomHeroes = () => {
                   </div>
                   {/* Team 2 */}
                   <div className="bg-gray-50 rounded-xl shadow p-4">
-                    <h2 className="text-xl font-bold mb-4 text-purple-700 text-center">
+                    <h2 className="text-2xl font-bold mb-4 text-purple-700 text-center">
                       Team 2
                     </h2>
                     <ul className="space-y-3">
                       {(team2WithLane.length ? team2WithLane : team2).map(
                         (member, idx) => {
-                          const name = typeof member === "string" ? member : member.name;
-                          const lane = typeof member === "string" ? undefined : member.lane;
+                          const name =
+                            typeof member === "string" ? member : member.name;
+                          const lane =
+                            typeof member === "string"
+                              ? undefined
+                              : member.lane;
                           const heroList = results[name];
                           return (
                             <li
@@ -378,14 +424,16 @@ const randomHeroes = () => {
                               )}
                               {heroList && (
                                 <div className="flex flex-wrap gap-2 ml-2">
-                                  {Object.entries(heroList).map(([role, hero]) => (
-                                    <span
-                                      key={role}
-                                      className="bg-blue-100 text-blue-700 w-[150px] px-2 py-1 rounded text-xs"
-                                    >
-                                      <b>{role}:</b> {hero}
-                                    </span>
-                                  ))}
+                                  {Object.entries(heroList).map(
+                                    ([role, hero]) => (
+                                      <span
+                                        key={role}
+                                        className="bg-blue-100 text-blue-700 w-[150px] px-2 py-1 rounded text-xs"
+                                      >
+                                        <b>{role}:</b> {hero}
+                                      </span>
+                                    )
+                                  )}
                                 </div>
                               )}
                             </li>
