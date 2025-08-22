@@ -20,8 +20,10 @@ export default function NameInput({ name, setName, addName }: Props) {
       />
       <button
         onClick={addName}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-600 transition w-full sm:w-auto"
-      >
+        className="w-[278rem] h-[61rem] flex items-center justify-center 
+             text-[#edbe80] text-[20.75rem] font-bold 
+             transition-all duration-300 
+             bg-[url('./../img/btn-more.png')] bg-no-repeat bg-[length:100%_100%] bg-[position:0_0]">
         Thêm mới
       </button>
     </div>

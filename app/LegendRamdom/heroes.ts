@@ -11,7 +11,7 @@ export const heroes = {
     "Mganga", "Veera", "Krixi", "Sephera", "Kahlii", "Ishar", "Bonnie", "Yue",
     "Raz", "Natalya", "Illumia", "Annette", "Điêu Thuyền", "Iggy", "Zata", 
     "Liliana", "Aleister", "Lauriel", "Jinna", "Preyta", "Bolt Baron", "Marja", 
-    "Azzen'Ka", "Ignis", "Tulen", "D'Arcy", "Dirak", "Lorion", "Heino"
+    "Azzen'Ka", "Ignis", "Tulen", "D'Arcy", "Dirak", "Lorion", "Heino","Goverra"
   ],
   "🛡️Trợ thủ": [
     "Toro", "Gildur", "Grakk", "Sephera", "Helen", "Ishar", "Krizzix", "Chaugnar", 

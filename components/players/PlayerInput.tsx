@@ -28,9 +28,11 @@ export default function PlayerInput({ onAdd, onDefault }: PlayerInputProps) {
       />
       <button
         onClick={handleAdd}
-        className="bg-purple-500 text-white px-4 py-2 rounded shadow w-[220px]"
-      >
-        Thêm mới
+        className="w-[278rem] h-[61rem] flex items-center justify-center 
+             text-[#edbe80] text-[20.75rem] font-bold 
+             transition-all duration-300 
+             bg-[url('./../img/btn-more.png')] bg-no-repeat bg-[length:100%_100%] bg-[position:0_0]">
+        Thêm mớ
       </button>
       <div className="">hoặc</div>
       <button
