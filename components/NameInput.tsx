@@ -23,7 +23,7 @@ export default function NameInput({ name, setName, addName }: Props) {
         className="w-[278rem] h-[61rem] flex items-center justify-center 
              text-[#edbe80] text-[20.75rem] font-bold 
              transition-all duration-300 
-             bg-[url('./../img/btn-more.png')] bg-no-repeat bg-[length:100%_100%] bg-[position:0_0]">
+             bg-[url('/images/download.png')] bg-no-repeat bg-[length:100%_100%] bg-[position:0_0]">
         Thêm mới
       </button>
     </div>
