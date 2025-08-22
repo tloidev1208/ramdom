@@ -43,7 +43,7 @@ export default function TeamDisplay({ team1, team2, spinTime }: Props) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 w-full text-gray-800">
         <div className="bg-blue-50 rounded-xl p-4 shadow">
-          <h2 className="text-xl font-bold mb-3 text-blue-700 text-center">
+          <h2 className="text-xl font-bold mb-3 text-[#DBAF78] text-center">
             🏆 Team 1
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -59,7 +59,7 @@ export default function TeamDisplay({ team1, team2, spinTime }: Props) {
         </div>
 
         <div className="bg-pink-50 rounded-xl p-4 shadow">
-          <h2 className="text-xl font-bold mb-3 text-pink-700 text-center">
+          <h2 className="text-xl font-bold mb-3 text-[#DBAF78] text-center">
             🥇 Team 2
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

@@ -30,7 +30,7 @@ export default function RootLayout({
         <div className="min-h-screen flex flex-col">
           <main className="flex-grow">{children}</main>
 
-          <footer className="bg-gray-100 text-gray-600 text-sm text-center py-4 border-t">
+          <footer className="bg-gray-900 text-gray-100 text-sm text-center py-4 border-t">
             <p>
               © {new Date().getFullYear()} Developed by{" "}
               <a
@@ -43,7 +43,7 @@ export default function RootLayout({
               </a>
               . All rights reserved.
               <br />
-              <span className="text-xs text-gray-400">version: 2.0.0</span>
+              <span className="text-xs text-gray-400">version: 5.0.0</span>
             </p>
           </footer>
         </div>
