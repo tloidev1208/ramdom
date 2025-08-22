@@ -117,25 +117,36 @@ export default function MainPage() {
 
 const randomHeroes = () => {
   const newResults: Record<string, Record<string, string[]>> = {};
-
-  // lấy heroes theo laneMap
   const allPlayersWithLane = [...team1WithLane, ...team2WithLane];
 
-  allPlayersWithLane.forEach(({ name, lane }) => {
-    const roles = laneMap[lane.key] ?? []; // ví dụ RỪNG -> ["🗡️Đấu sĩ", "⚔️Sát thủ"]
+  // group người chơi theo lane
+  const playersByLane: Record<string, { name: string; lane: Lane }[]> = {};
+  allPlayersWithLane.forEach((player) => {
+    if (!playersByLane[player.lane.key]) playersByLane[player.lane.key] = [];
+    playersByLane[player.lane.key].push(player);
+  });
 
-    // ép kiểu key khi truy cập heroes
-    const list = roles.flatMap((r) => heroes[r as HeroKey] || []);
+  // xử lý từng lane
+  Object.entries(playersByLane).forEach(([laneKey, players]) => {
+    const roles = laneMap[laneKey] ?? [];
+    const pool = roles.flatMap((r) => heroes[r as HeroKey] || []);
 
-    // random 5 con
-    const shuffled = shuffleArray(list).slice(0, 5);
+    // shuffle toàn bộ pool cho lane này
+    const shuffledPool = shuffleArray(pool);
 
-    if (!newResults[name]) newResults[name] = {};
-    newResults[name][lane.key] = shuffled; // lưu hero theo lane
+    players.forEach((player, idx) => {
+      // mỗi người lấy 5 con khác nhau, không trùng
+      const start = idx * 5;
+      const assigned = shuffledPool.slice(start, start + 5);
+
+      if (!newResults[player.name]) newResults[player.name] = {};
+      newResults[player.name][laneKey] = assigned;
+    });
   });
 
   setResults(newResults);
 };
+
 
 
   useEffect(() => {
