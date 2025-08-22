@@ -1,4 +1,4 @@
-import { Lane } from "@/types";
+
 import { useState} from "react";
 interface TeamDisplayProps {
   team: (string | { name: string; lane: Lane })[];
@@ -7,7 +7,12 @@ interface TeamDisplayProps {
   color: string;
   dateTime?: string;
 }
-
+type Lane = {
+  key: string;
+  color: string;
+  bg: string;
+  icon: string;
+};
 export default function TeamDisplay({
   team,
   results,

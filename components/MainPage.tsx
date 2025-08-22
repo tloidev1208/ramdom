@@ -6,8 +6,12 @@ import PlayerList from "@/components/players/PlayerList";
 import TeamActions from "@/components/teams/TeamActions";
 import TeamDisplay from "@/components/teams/TeamDisplay";
 
-import { Lane } from "@/types";
-
+type Lane = {
+  key: string;
+  color: string;
+  bg: string;
+  icon: string;
+};
 const LANES: Lane[] = [
   { key: "RỪNG", color: "text-green-600", bg: "bg-green-100", icon: "🌲" },
   { key: "TOP", color: "text-blue-600", bg: "bg-blue-100", icon: "🗡️" },
@@ -24,7 +28,6 @@ const laneMap: Record<string, string[]> = {
   AD: ["🏹Xạ thủ"],
   SP: ["🛡️Trợ thủ"],
 };
-
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   let newArr = [...array];
@@ -121,8 +124,8 @@ const randomHeroes = () => {
   allPlayersWithLane.forEach(({ name, lane }) => {
     const roles = laneMap[lane.key] ?? []; // ví dụ RỪNG -> ["🗡️Đấu sĩ", "⚔️Sát thủ"]
 
-    // gộp heroes từ nhiều role lại
-    const list = roles.flatMap((r) => heroes[r] || []);
+    // ép kiểu key khi truy cập heroes
+    const list = roles.flatMap((r) => heroes[r as HeroKey] || []);
 
     // random 5 con
     const shuffled = shuffleArray(list).slice(0, 5);
@@ -185,3 +188,11 @@ const randomHeroes = () => {
     </div>
   );
 }
+
+// Định nghĩa type cho các key của heroes
+type HeroKey =
+  | "🗡️Đấu sĩ"
+  | "🔥Pháp sư"
+  | "🛡️Trợ thủ"
+  | "⚔️Sát thủ"
+  | "🏹Xạ thủ";
