@@ -225,6 +225,19 @@ export default function MainPage() {
       "Trường (ⒷⓁⓊⒺⓈ)",
     ]);
 
+  const resetDateTime = () => {
+    const now = new Date();
+    setDateTime(
+      now.toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }) +
+        " " +
+        now.toLocaleTimeString("vi-VN")
+    );
+  };
+
   const spinAndAssign = () => {
     setIsSpinning(true);
     setTimeout(() => {
@@ -234,6 +247,7 @@ export default function MainPage() {
       setTeam1WithLane([]);
       setTeam2WithLane([]);
       setIsSpinning(false);
+      resetDateTime(); // reset lại thời gian
     }, 2000);
   };
 
@@ -257,6 +271,7 @@ export default function MainPage() {
         }))
       );
     }
+    resetDateTime(); // reset lại thời gian
   };
 
   const randomHeroes = () => {
@@ -292,20 +307,8 @@ export default function MainPage() {
     });
 
     setResults(newResults);
+    resetDateTime(); // reset lại thời gian
   };
-
-  useEffect(() => {
-    const now = new Date();
-    setDateTime(
-      now.toLocaleDateString("vi-VN", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-      }) +
-        " " +
-        now.toLocaleTimeString("vi-VN")
-    );
-  }, []);
 
   return (
     <div
