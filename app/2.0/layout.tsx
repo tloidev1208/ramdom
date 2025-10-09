@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +29,23 @@ export default function RootLayout({
       >
         <div className="min-h-screen flex flex-col">
           <main className="flex-grow">{children}</main>
+
+          <footer className="bg-gray-900 text-gray-100 text-sm text-center py-4 border-t">
+            <p>
+              © {new Date().getFullYear()} Developed by{" "}
+              <a
+                href="https://thanh-loi-dev.netlify.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                tloidev
+              </a>
+              . All rights reserved.
+              <br />
+              <span className="text-xs text-gray-400">version: 5.0.0</span>
+            </p>
+          </footer>
         </div>
       </body>
     </html>
