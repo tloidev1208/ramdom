@@ -1,19 +1,10 @@
 import { NextResponse } from "next/server";
+import { GET as getHeroes } from "../route"; // ⬅ import trực tiếp API heroes
 
 export async function GET() {
   try {
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
-
-    const res = await fetch(`${baseUrl}/api/heroes`, {
-      cache: "no-store", // tránh cache
-    });
-
-    if (!res.ok) {
-      return NextResponse.json({ error: "Không lấy được danh sách tướng" }, { status: 500 });
-    }
-
+    // gọi trực tiếp function GET của /api/heroes
+    const res = await getHeroes();
     const heroes = await res.json();
 
     if (!Array.isArray(heroes) || heroes.length === 0) {
@@ -24,6 +15,6 @@ export async function GET() {
     return NextResponse.json(randomHero);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Lỗi server" }, { status: 500 });
+    return NextResponse.json({ error: "Lỗi server random" }, { status: 500 });
   }
 }
