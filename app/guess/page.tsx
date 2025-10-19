@@ -28,6 +28,12 @@ export default function GuessGamePage() {
   const [highlighted, setHighlighted] = useState<number>(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // new states for timer / attempts / lives
+  const [timeLeft, setTimeLeft] = useState<number>(30);
+  const timerRef = useRef<number | null>(null);
+  const [wrongCount, setWrongCount] = useState<number>(0);
+  const [lives, setLives] = useState<number>(3); // số lượt chơi (bạn có thể thay đổi)
+
   useEffect(() => {
     (async () => {
       try {
@@ -109,15 +115,106 @@ export default function GuessGamePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
+  // helper to clear countdown
+  const clearTimer = () => {
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  // start 30s countdown whenever a new image is set
+  useEffect(() => {
+    clearTimer();
+    if (!imageUrl) {
+      setTimeLeft(30);
+      return;
+    }
+    setTimeLeft(30);
+    timerRef.current = window.setInterval(() => {
+      setTimeLeft((t) => {
+        if (t <= 1) {
+          // timeout: treat as a failed attempt then move to next
+          window.setTimeout(() => handleTimeout(), 0);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+
+    return () => clearTimer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageUrl]);
+
+  // handle timeout (30s expired)
+  const handleTimeout = () => {
+    clearTimer();
+    // count as a failed attempt
+    const newWrong = wrongCount + 1;
+    setWrongCount(newWrong);
+    if (newWrong > 5) {
+      // lose one life, reset wrongCount
+      setLives((l) => Math.max(0, l - 1));
+      setWrongCount(0);
+      // optional: notify user
+      alert("Bạn đã sai quá 5 lần. Mất 1 lượt chơi.");
+    }
+    // move to next image immediately
+    void nextRound(false, true);
+  };
+
+  // unified next round handler
+  // isCorrect: whether previous guess was correct
+  // fromTimeout: whether triggered by timeout
+  const nextRound = async (isCorrect = false, fromTimeout = false) => {
+    clearTimer();
+    setShowAnswer(false);
+    setSuggestions([]);
+    setHighlighted(-1);
+    setAnswer("");
+    // if correct, increment score & reset wrongCount
+    if (isCorrect) {
+      setScore((s) => s + 1);
+      setWrongCount(0);
+      setShowCongrats(true);
+      setTimeout(() => setShowCongrats(false), 2500);
+    } else if (!fromTimeout) {
+      // increment wrongCount for manual wrong guesses
+      const newWrong = wrongCount + 1;
+      setWrongCount(newWrong);
+      if (newWrong > 5) {
+        setLives((l) => Math.max(0, l - 1));
+        setWrongCount(0);
+        alert("Bạn đã sai quá 5 lần. Mất 1 lượt chơi.");
+      }
+    }
+
+    // small delay for UX
+    setTimeout(() => {
+      // reuse startGame to load a new random image
+      void startGame();
+    }, 400);
+  };
+
+  // modify checkAnswer to use nextRound
   const checkAnswer = () => {
     if (!correctHero) return;
     if (answer.trim().toLowerCase() === correctHero.toLowerCase()) {
-      setShowAnswer(true);
-      setScore((s) => s + 1);
-      setShowCongrats(true);
-      setTimeout(() => setShowCongrats(false), 3000);
+      // correct -> go to next immediately
+      void nextRound(true, false);
     } else {
-      alert("❌ Sai rồi! Thử lại hoặc bấm Bỏ qua.");
+      // wrong guess -> notify & update attempts but stay on same image
+      const newWrong = wrongCount + 1;
+      setWrongCount(newWrong);
+      if (newWrong > 5) {
+        setLives((l) => Math.max(0, l - 1));
+        setWrongCount(0);
+        alert("Bạn đã sai quá 5 lần. Mất 1 lượt chơi.");
+        // move to next round after losing a life
+        void nextRound(false, false);
+      } else {
+        alert(`❌ Sai rồi! (${newWrong}/5). Thử lại.`);
+      }
     }
   };
 
@@ -318,13 +415,24 @@ export default function GuessGamePage() {
                   ? `Đã tiết lộ: ${correctHero}`
                   : "Nhập tên tướng để đoán"}
               </div>
-              <div className="text-sm text-white/60">Nguồn: API nội bộ</div>
+            
             </div>
           </div>
 
           {/* Controls & skins panel */}
           <div className="bg-white/5 rounded-lg p-4 flex flex-col gap-4">
             <div>
+                <div className="text-sm text-white/60">
+                {/* show timer */}
+                {imageUrl ? (
+                  <div className="font-mono">
+                    Thời gian còn lại:{" "}
+                    <span className="font-bold">{timeLeft}s</span>
+                  </div>
+                ) : (
+                  <div>Không có ảnh</div>
+                )}
+              </div>
               <label className="text-xs text-white/80">Nhập tên tướng</label>
               <div className="relative mt-2">
                 <input
@@ -405,7 +513,8 @@ export default function GuessGamePage() {
                 Điểm của bạn: <span className="font-semibold">{score}</span>
               </div>
               <div className="text-xs mt-2">
-                Gợi ý: dùng autocomplete để chọn tên chính xác
+                Sai liên tiếp:{" "}
+                <span className="font-semibold">{wrongCount}</span> / 5
               </div>
             </div>
           </div>
