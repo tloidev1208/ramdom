@@ -29,6 +29,34 @@ export default function RootLayout({
       >
         <div className="min-h-screen flex flex-col">
           <main className="flex-grow">{children}</main>
+
+          {/* Footer tác giả */}
+          <footer className="bg-gray-900 text-white py-4 text-center">
+            <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+              <div className="text-sm">
+                © {new Date().getFullYear()}{" "}
+                <a
+                  href="https://thanh-loi-dev.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline hover:text-indigo-300"
+                >
+                  Tloidev1208
+                </a>
+              </div>
+              <div className="text-xs text-gray-300">
+                Thiết kế & phát triển bởi{" "}
+                <a
+                  href="https://thanh-loi-dev.netlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium underline hover:text-indigo-300"
+                >
+                   Tloidev1208
+                </a>
+              </div>
+            </div>
+          </footer>
         </div>
       </body>
     </html>
