@@ -7,10 +7,17 @@ type Skin = {
   img: string | null;
 };
 
+type SkillImg = {
+  id: string;
+  title: string;
+  img: string | null;
+};
+
 type ApiResult = {
   hero: string;
   main: Skin | null;
   skins: Skin[];
+  skills?: SkillImg[];
   source?: string;
   error?: string;
 };
@@ -130,6 +137,37 @@ export default function HeroSkinsPage() {
             ) : (
               <div className="text-sm text-gray-500">Không tìm thấy skin</div>
             )}
+
+            {/* Skills list */}
+            <div className="mt-4">
+              <h4 className="font-semibold mb-2">Kỹ năng</h4>
+              {data.skills && data.skills.length > 0 ? (
+                <div className="flex gap-2 flex-wrap">
+                  {data.skills.map((sk) => (
+                    <button
+                      key={sk.id || sk.title}
+                      onClick={() => sk.img && setMainImg(sk.img)}
+                      className="flex items-center gap-2 p-1 rounded hover:bg-gray-100"
+                    >
+                      {sk.img ? (
+                        <img
+                          src={sk.img}
+                          alt={sk.title}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-100 flex items-center justify-center text-gray-400 rounded">
+                          -
+                        </div>
+                      )}
+                      <span className="text-xs">{sk.title}</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-500">Không tìm thấy ảnh kỹ năng</div>
+              )}
+            </div>
           </div>
         </div>
       )}

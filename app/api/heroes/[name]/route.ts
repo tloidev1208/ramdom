@@ -9,19 +9,35 @@ interface Skin {
   img: string | null;
 }
 
-export async function GET(
-  request: Request,
-  { params }: { params: { name: string } } // <-- dùng `name` vì folder là [name]
-) {
-  const heroParam = params?.name ?? "";
-  const heroName = String(heroParam).trim().toLowerCase();
-  if (!heroName) {
+interface SkillImg {
+  id: string;
+  title: string;
+  img: string | null;
+}
+
+function toSlug(input: string) {
+  const decoded = decodeURIComponent(input || "");
+  return decoded
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // remove diacritics
+    .replace(/[^a-z0-9\s-]/g, "") // keep alphanumeric, space, hyphen
+    .replace(/\s+/g, "-") // spaces -> hyphen
+    .replace(/-+/g, "-") // collapse multiple hyphens
+    .replace(/^-|-$/g, ""); // trim hyphens
+}
+
+export async function GET(request: Request, { params }: any) {
+  const rawParam = params?.name ?? "";
+  const heroSlug = toSlug(String(rawParam));
+  if (!heroSlug) {
     return NextResponse.json({ error: "Missing hero name" }, { status: 400 });
   }
 
   try {
     const url = `https://lienquan.garena.vn/hoc-vien/tuong-skin/d/${encodeURIComponent(
-      heroName
+      heroSlug
     )}/`;
 
     const { data } = await axios.get(url, {
@@ -35,15 +51,6 @@ export async function GET(
 
     const $ = cheerio.load(data);
 
-    // main skin
-    const heroSkin1El = $("#heroSkin-1");
-    const mainName = heroSkin1El.find("h3").text().trim() || heroName;
-    let mainImg =
-      heroSkin1El.find("picture img").attr("src") ??
-      heroSkin1El.find("img").attr("src") ??
-      null;
-
-    // normalize url
     const normalize = (src: string | null) => {
       if (!src) return null;
       if (src.startsWith("//")) return `https:${src}`;
@@ -52,6 +59,13 @@ export async function GET(
       return src;
     };
 
+    // main skin
+    const heroSkin1El = $("#heroSkin-1");
+    const mainName = heroSkin1El.find("h3").text().trim() || heroSlug;
+    let mainImg =
+      heroSkin1El.find("picture img").attr("src") ??
+      heroSkin1El.find("img").attr("src") ??
+      null;
     mainImg = normalize(mainImg);
 
     // all skins inside .hero__skins--detail
@@ -70,20 +84,42 @@ export async function GET(
       if (id || name) skins.push({ id, name, img: nimg });
     });
 
+    // skill images from .hero__skills--list
+    const skills: SkillImg[] = [];
+    $(".hero__skills--list")
+      .find("a")
+      .each((_, el) => {
+        const href = $(el).attr("href") ?? "";
+        const id = href.replace("#", "").trim();
+        const title =
+          $(el).attr("title") ??
+          $(el).find("img").attr("alt") ??
+          $(el).text().trim() ??
+          "";
+        const src =
+          $(el).find("img").attr("src") ??
+          $(el).attr("data-src") ??
+          $(el).attr("data-original") ??
+          null;
+        const nimg = normalize(src);
+        skills.push({ id, title, img: nimg });
+      });
+
     return NextResponse.json({
-      hero: heroName,
+      hero: heroSlug,
       main: {
         id: "heroSkin-1",
         name: mainName,
         img: mainImg,
       },
       skins,
+      skills,
       source: url,
     });
   } catch (err) {
     console.error("Scrape error:", err);
     return NextResponse.json(
-      { error: `Lỗi crawl dữ liệu cho tướng ${heroName}` },
+      { error: `Lỗi crawl dữ liệu cho tướng ${heroSlug}` },
       { status: 500 }
     );
   }
