@@ -13,6 +13,19 @@ type ApiResult = {
 type Mode = "skin" | "skill";
 type HeroBasic = { name: string; img?: string };
 
+// Thêm hàm toSlug trên client để chuẩn hóa input (Lữ Bố -> lu-bu)
+function toSlug(input: string) {
+  return String(input || "")
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // bỏ dấu
+    .replace(/[^a-z0-9\s-]/g, "") // giữ chữ/ số/ khoảng trắng/ dấu -
+    .replace(/\s+/g, "-") // space -> -
+    .replace(/-+/g, "-") // collapse --
+    .replace(/^-|-$/g, ""); // trim - cuối/đầu
+}
+
 export default function GuessGamePage() {
   const [mode, setMode] = useState<Mode>("skin");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -196,10 +209,12 @@ export default function GuessGamePage() {
     }, 400);
   };
 
-  // modify checkAnswer to use nextRound
+  // sửa checkAnswer để so sánh bằng slug
   const checkAnswer = () => {
     if (!correctHero) return;
-    if (answer.trim().toLowerCase() === correctHero.toLowerCase()) {
+    const inputSlug = toSlug(answer);
+    const correctSlug = toSlug(correctHero); // phòng trường hợp correctHero chưa chuẩn
+    if (inputSlug && inputSlug === correctSlug) {
       // correct -> go to next immediately
       void nextRound(true, false);
     } else {
