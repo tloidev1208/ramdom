@@ -32,9 +32,6 @@ function TeamDisplay({
 
   return (
     <div className="bg-gray-900/80 rounded-xl shadow p-4">
-      {dateTime && (
-        <p className="text-xl text-white mb-4">🕔Random lúc: {dateTime}</p>
-      )}
       <select
         value={selectedGame}
         onChange={(e) => setSelectedGame(Number(e.target.value))}
@@ -77,7 +74,7 @@ function TeamDisplay({
                     {heroes.map((h: { name: string; img: string }, i) => (
                       <div
                         key={i}
-                        className="flex flex-col items-center gap-2 text-white px-2 rounded text-sm w-35"
+                        className="flex flex-col items-center gap-1 text-white px-2 rounded text-sm w-25"
                       >
                         <img
                           src={h.img}
@@ -315,7 +312,7 @@ export default function MainPage() {
       className="min-h-screen bg-cover bg-center px-4 py-6"
       style={{ backgroundImage: "url('/images/bg-academy.jpg')" }}
     >
-      <div className="w-full max-w-6xl mx-auto bg-black/30 rounded-2xl shadow-xl p-6">
+      <div className="w-full max-w-full mx-auto bg-black/30 rounded-2xl shadow-xl p-6">
         <h1 className="text-3xl font-extrabold mb-6 text-[#E2C499] text-center">
           🎮 RANDOM TOOL
         </h1>
@@ -330,9 +327,11 @@ export default function MainPage() {
           isSpinning={isSpinning}
           canAssign={!!(team1.length || team2.length)}
         />
-
+ {dateTime && (
+        <p className="text-xl text-white mb-4">🕔Random lúc: {dateTime}</p>
+      )}
         {(team1.length > 0 || team2.length > 0) && (
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6 ">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-6 mt-6 ">
             <TeamDisplay
               team={team1WithLane.length ? team1WithLane : team1}
               results={results}
