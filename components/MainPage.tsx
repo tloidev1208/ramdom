@@ -222,7 +222,7 @@ export default function MainPage() {
       "Hưng (~THD~Bucky)",
       "Kiệt (PhởBEEF)",
       "Nam (Vinamilk)",
-      "Trường (ⒷⓁⓊⒺⓈ)",
+      "Phong",
     ]);
 
   const resetDateTime = () => {
