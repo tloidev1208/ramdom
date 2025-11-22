@@ -83,6 +83,25 @@ const Player = mongoose.model("Player", {
  *       200:
  *         description: Danh sách người chơi theo skillScore giảm dần
  */
+/**
+ * @swagger
+ * /player/{id}:
+ *   delete:
+ *     summary: Xóa người chơi theo ID
+ *     tags: [Player]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID của người chơi
+ *     responses:
+ *       200:
+ *         description: Xóa thành công
+ *       404:
+ *         description: Không tìm thấy người chơi
+ */
 
 // -----------------------------
 // API: Thêm người chơi
@@ -120,6 +139,23 @@ app.get("/ranking/skin", async (req, res) => {
 app.get("/ranking/skill", async (req, res) => {
   const ranking = await Player.find().sort({ skillScore: -1 });
   res.json(ranking);
+});
+// -----------------------------
+// API: Xóa người chơi theo ID
+app.delete("/player/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await Player.findByIdAndDelete(id);
+
+    if (!result) {
+      return res.status(404).json({ error: "Không tìm thấy người chơi." });
+    }
+
+    res.json({ message: "Đã xóa người chơi thành công!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // -----------------------------
